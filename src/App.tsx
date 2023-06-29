@@ -28,8 +28,8 @@ const getUsers = (): Promise<UserData> => {
     .catch((error) => console.log("ERROR"));
 };
 
-const postUsers = (): void => {
-  fetch("https://reqres.in/api/users", {
+const postUser = (): Promise<boolean> => {
+  return fetch("https://reqres.in/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -38,23 +38,50 @@ const postUsers = (): void => {
       name: "User 1",
     }),
   })
-    .then((res) => res.json())
-    .then((data) => console.log(data))
-    .catch((error) => console.log("ERROR"));
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        console.log("Nope");
+        return false;
+      }
+    })
+    .then((data) => {
+      console.log(JSON.stringify(data));
+      return true;
+    })
+    .catch((error) => {
+      console.log("ERROR");
+      return false;
+    });
 };
 
 const App = (): React.ReactElement => {
   const [users, setUsers] = React.useState<User[] | undefined>(undefined);
+  const [postOutcome, setPostOutcome] = React.useState<boolean | undefined>(
+    undefined
+  );
 
+  // An alternative to these methods is to set the state variables in the fetch.then()
+  // functions themselves, instead of returning a promise from fetch and awaiting the
+  // called function
   const handleGet = React.useCallback(async () => {
     const userData = await getUsers();
     setUsers(userData.data);
   }, []);
 
+  const handlePost = React.useCallback(async () => {
+    const outcome = await postUser();
+    setPostOutcome(outcome);
+  }, []);
+
   return (
     <div className="App">
       <p>Hello there!</p>
-      <button onClick={postUsers}>Post</button>
+      <button onClick={handlePost}>Post</button>
+      {postOutcome !== undefined && (
+        <p>{postOutcome ? "Success!" : "Failure!"}</p>
+      )}
       <button onClick={handleGet}>Get</button>
       {users && users.map((user) => <p>Email: {user.email}</p>)}
     </div>

@@ -1,20 +1,30 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
 
-const getUsers = (): void => {
-  fetch("https://reqres.in/api/users", {
-    method: "GET",
-  })
+type User = {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  avatar: string;
+};
+interface UserData {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+  data: User[];
+}
+
+const getUsers = (): Promise<UserData> => {
+  return fetch("https://reqres.in/api/users")
     .then((res) => {
       if (res.ok) {
-        console.log("SUCCESS");
         return res.json();
       } else {
         console.log("Nope");
       }
     })
-    .then((data) => console.log(data))
+    .then((data) => data)
     .catch((error) => console.log("ERROR"));
 };
 
@@ -34,14 +44,19 @@ const postUsers = (): void => {
 };
 
 const App = (): React.ReactElement => {
-  React.useEffect(() => {
-    getUsers();
-    postUsers();
+  const [users, setUsers] = React.useState<User[] | undefined>(undefined);
+
+  const handleGet = React.useCallback(async () => {
+    const userData = await getUsers();
+    setUsers(userData.data);
   }, []);
 
   return (
     <div className="App">
       <p>Hello there!</p>
+      <button onClick={postUsers}>Post</button>
+      <button onClick={handleGet}>Get</button>
+      {users && users.map((user) => <p>Email: {user.email}</p>)}
     </div>
   );
 };

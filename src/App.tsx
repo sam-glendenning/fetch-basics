@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
-function App() {
+const getUsers = (): void => {
+  fetch("https://reqres.in/api/users", {
+    method: "GET",
+  })
+    .then((res) => {
+      if (res.ok) {
+        console.log("SUCCESS");
+        return res.json();
+      } else {
+        console.log("Nope");
+      }
+    })
+    .then((data) => console.log(data))
+    .catch((error) => console.log("ERROR"));
+};
+
+const postUsers = (): void => {
+  fetch("https://reqres.in/api/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "User 1",
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.log("ERROR"));
+};
+
+const App = (): React.ReactElement => {
+  React.useEffect(() => {
+    getUsers();
+    postUsers();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <p>Hello there!</p>
     </div>
   );
-}
+};
 
 export default App;
